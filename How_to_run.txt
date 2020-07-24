@@ -1,0 +1,27 @@
+In order to schedule our spark script to run daily at a specific time on an Ubuntu 20.04 machine,
+we install airflow (https://stackoverflow.com/questions/62453997/running-airflow-on-ubuntu-20-04-typeerror-required-field-type-ignores-missin),
+spark (https://computingforgeeks.com/how-to-install-apache-spark-on-ubuntu-debian/) and pyspark (using pip install pyspark inside our pipenv shell)
+and then follow these instructions:
+
+1. Move the dags/etl_dag.py to ~/airflow
+
+2. Change the directory to where our python3.7 enviroment is (in the form of Pipfile, Pipfile.lock files).
+   Move spark_script.py and bank-full.csv to that directory.
+   In a production setting the csv file would be update daily.
+
+3. pipenv shell
+
+Enter the custom enviroment. All python commands from now on refer to python3.7
+
+4. Start spark service using start-master.sh and start-slave.sh
+
+5. airflow webserver -p 7081
+   airflow scheduler
+
+Start airflow service in the background. Server running at localhost:7081
+
+6. airflow test etl_dag etl <insert date here>
+
+Test the setup. Date format: yyyy-mm-dd
+
+7. Enable the task from the gui at localhost:7081

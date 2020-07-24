@@ -7,8 +7,7 @@ from pyspark.ml.evaluation import BinaryClassificationEvaluator
 
 # Create connection and load csv
 spark = SparkSession.builder.getOrCreate()
-data_path = "C:\\Users\\ioann\\Desktop\\Programming\\Spark_Project"
-file_path = data_path + "\\bank-full.csv"
+file_path = "bank-full.csv"
 
 df = spark.read.csv(file_path, header = True, inferSchema = True)
 
@@ -54,25 +53,8 @@ feature_list += [s + "_vec" for s in feature_list]
 df = df.drop(*feature_list, *labeled_cols, *encoded_cols, "features")
 
 # Write the pre-processed data to a csv file
-df.write.csv("bank-processed.csv", header = True)
-
-# Train test split
-(trainingData, testData) = df.randomSplit([0.8, 0.2])
-
-# Create a vector for all the features
-features = [col for col in df.columns if col != "y_labeled"]
-assembler = VectorAssembler(inputCols = features, outputCol = "features")
-
-# Create our random forest model
-classifier = RandomForestClassifier(labelCol = "y_labeled", featuresCol = "features")
-pipeline = Pipeline(stages=[assembler, classifier])
-# Fit the model to the data and predict values
-rf_model = pipeline.fit(trainingData)
-predicted = rf_model.transform(testData)
-predicted = predicted.withColumn("label", predicted.y_labeled)
-
-# Compute accuracy
-evaluator = BinaryClassificationEvaluator(rawPredictionCol="rawPrediction")
-evaluator.evaluate(predicted)
-
-
+# df.write.csv("bank-processed.csv", header = True)
+from datetime import datetime
+date = datetime.now().strftime("%x").replace('/','-')
+fname = "bank-processed-" + date
+df.rdd.saveAsTextFile(fname)
